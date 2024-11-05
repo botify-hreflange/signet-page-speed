@@ -62,60 +62,33 @@
 <body>
     <div class="container">
         <h1>Signet Page Speed Reports</h1>
-        <button onclick="listDirectories(true)" class="refresh-btn">Refresh List</button>
-        <div id="folderList">Loading...</div>
+        <button onclick="location.reload()" class="refresh-btn">Refresh List</button>
+        <div id="folderList">
+            <!-- Static list of folders - Add new folders here as they're created -->
+            <div class="folder">
+                <a href="PDP Mobile 2024-11-05/index.html">PDP Mobile 2024-11-05</a>
+                <div class="date">Added: 11/5/2024</div>
+            </div>
+            <div class="folder">
+                <a href="PDP Desktop 2024-11-05/index.html">PDP Desktop 2024-11-05</a>
+                <div class="date">Added: 11/5/2024</div>
+            </div>
+        </div>
     </div>
     <script>
-        async function listDirectories(noCache = false) {
-            try {
-                const url = 'https://api.github.com/repos/botify-hreflange/signet-page-speed/contents/';
-                const options = noCache ? {
-                    headers: {
-                        'Cache-Control': 'no-cache',
-                        'If-None-Match': ''
-                    }
-                } : {};
-                
-                const response = await fetch(url, options);
-                const data = await response.json();
-                
-                const folderList = document.getElementById('folderList');
-                folderList.innerHTML = '';
-
-                // Sort folders by date (newest first)
-                const folders = data
-                    .filter(item => item.type === 'dir' && item.name.includes('Desktop'))
-                    .sort((a, b) => {
-                        const dateA = new Date(a.name.split('Desktop ')[1]);
-                        const dateB = new Date(b.name.split('Desktop ')[1]);
-                        return dateB - dateA;
-                    });
-
-                if (folders.length === 0) {
-                    folderList.innerHTML = 'No folders found';
-                    return;
+        function scanDirectories() {
+            const basePath = window.location.pathname.replace('index.html', '');
+            const folders = document.querySelectorAll('.folder');
+            
+            folders.forEach(folder => {
+                const link = folder.querySelector('a');
+                if (link) {
+                    link.href = basePath + link.getAttribute('href');
                 }
-
-                folders.forEach(item => {
-                    const dateStr = item.name.split('Desktop ')[1];
-                    const folderDiv = document.createElement('div');
-                    folderDiv.className = 'folder';
-                    folderDiv.innerHTML = `
-                        <a href="${item.name}/index.html">${item.name}</a>
-                        <div class="date">Added: ${new Date(dateStr).toLocaleDateString()}</div>
-                    `;
-                    folderList.appendChild(folderDiv);
-                });
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('folderList').innerHTML = 
-                    `Error loading directories: ${error.message}<br>
-                     Try clicking the refresh button above.`;
-            }
+            });
         }
 
-        // Initial load
-        listDirectories();
+        scanDirectories();
     </script>
 </body>
 </html>
